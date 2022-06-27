@@ -12,6 +12,7 @@
 
 #ifndef SKIP_LIST_HEADER_
 #define SKIP_LIST_HEADER_
+#include<iostream>
 
 template<class T, unsigned maxLevel = 6>
 class SkipList {
@@ -100,6 +101,10 @@ public:
 	bool containsElement(const T& elem) const;
 
 	bool exceptionSafeSearch(const T& elem, T& result) const;
+
+	size_t elementsCount() const;
+
+	bool empty() const;
 
 	void print() const;
 
@@ -223,6 +228,8 @@ bool SkipList<T, maxLevel>::removeElement(const T& elem) {
 
 	while (level > 0 && header->forward[level] == nullptr) { --level; }
 
+	--size;
+
 	return true;
 }
 
@@ -246,6 +253,16 @@ bool SkipList<T, maxLevel>::exceptionSafeSearch(const T& elem, T& result) const 
 }
 
 template<class T, unsigned maxLevel>
+inline size_t SkipList<T, maxLevel>::elementsCount() const {
+	return size;
+}
+
+template<class T, unsigned maxLevel>
+inline bool SkipList<T, maxLevel>::empty() const {
+	return (size == 0);
+}
+
+template<class T, unsigned maxLevel>
 void SkipList<T, maxLevel>::print() const {
 	for (int i = maxLevel - 1; i >= 0; i--) {
 		Node* it = header->forward[i];
@@ -253,7 +270,7 @@ void SkipList<T, maxLevel>::print() const {
 		int cnt = 0;
 
 		while (it) {
-			std::cout << it->value << " ";
+			// std::cout << it->value << " ";
 			++cnt;
 			it = it->forward[i];
 		}
