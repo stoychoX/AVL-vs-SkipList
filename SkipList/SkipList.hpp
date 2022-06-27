@@ -5,9 +5,9 @@
 *
 * Counting levels starts from 1 because of easier indexing/counting.
 *
-* nullptr is out NIL element, which has value greater than any other.
+* nullptr is our NIL element, which has value greater than any other.
 *
-* Why we make NodeBase pnt.
+* We make NodeBase class so we dont force having T in our header node as T might be "expencive".
 */
 
 #ifndef SKIP_LIST_HEADER_
@@ -235,11 +235,15 @@ bool SkipList<T, maxLevel>::removeElement(const T& elem) {
 
 template<class T, unsigned maxLevel>
 bool SkipList<T, maxLevel>::containsElement(const T& elem) const {
-	try {
-		search(elem);
+	NodeBase* it = header;
+
+	for (int i = maxLevel - 1; i >= 0; --i) {
+		while (it->forward[i] && it->forward[i]->value < elem) {
+			it = it->forward[i];
+		}
 	}
-	catch (const std::exception& e) { return false; }
-	return true;
+	it = it->forward[0];
+	return (bool)it;
 }
 
 template<class T, unsigned maxLevel>

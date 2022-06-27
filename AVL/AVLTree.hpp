@@ -18,7 +18,6 @@ private:
 			if (!subTree || !subTree->right)
 				return;
 
-			// std::swap
 			T temp = subTree->data;
 			subTree->data = subTree->right->data;
 			subTree->right->data = temp;
@@ -38,7 +37,6 @@ private:
 			if (!subTree || !subTree->left)
 				return;
 
-			// swap
 			T temp = subTree->data;
 			subTree->data = subTree->left->data;
 			subTree->left->data = temp;
@@ -362,7 +360,6 @@ int AVLTree<T>::searchForRightDisbalance(Node*& r) {
 
 		if (r->left) {
 			r->left->height = Node::max(Node::getHeight(r->left->left), Node::getHeight(r->left->right)) + 1;
-			//r->left->height--;
 		}
 
 		return 1;
