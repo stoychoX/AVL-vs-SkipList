@@ -193,10 +193,14 @@ const T& SkipList<T, maxLevel>::search(const T& elem) const {
 		}
 	}
 	it = it->forward[0];
-	if (!it)
-		throw std::exception("No such element!");
 
-	return static_cast<Node*>(it)->value;
+	if (it) {
+		it = static_cast<Node*>(it);
+		if (it->value == elem)
+			return it->value;
+	}
+
+	throw std::exception("No such element!");
 }
 
 template<class T, unsigned maxLevel>
@@ -243,17 +247,29 @@ bool SkipList<T, maxLevel>::containsElement(const T& elem) const {
 		}
 	}
 	it = it->forward[0];
-	return (bool)it;
+	return (it && static_cast<Node*>(it)->value == elem);
 }
 
 template<class T, unsigned maxLevel>
 bool SkipList<T, maxLevel>::exceptionSafeSearch(const T& elem, T& result) const {
-	try {
-		result = search(elem);
+	NodeBase* it = header;
+
+	for (int i = maxLevel - 1; i >= 0; --i) {
+		while (it->forward[i] && it->forward[i]->value < elem) {
+			it = it->forward[i];
+		}
 	}
-	catch (const std::exception& e) { return false; }
-	
-	return true;
+	it = it->forward[0];
+
+	if (it) {
+		it = static_cast<Node*>(it);
+		if (it->value == elem)
+			result = it->value;
+
+		return true;
+	}
+
+	return false;
 }
 
 template<class T, unsigned maxLevel>
