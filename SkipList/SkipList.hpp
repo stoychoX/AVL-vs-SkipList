@@ -89,8 +89,10 @@ public:
 	SkipList();
 
 	SkipList(const SkipList<T, maxLevel>&);
+	SkipList(SkipList<T, maxLevel>&&) noexcept;
 
 	SkipList<T, maxLevel>& operator=(const SkipList<T, maxLevel>& other);
+	SkipList<T, maxLevel>& operator=(SkipList<T, maxLevel>&&) noexcept;
 
 	void insert(const T& elem);
 
@@ -134,11 +136,32 @@ SkipList<T, maxLevel>::SkipList(const SkipList<T, maxLevel>& other) {
 }
 
 template<class T, unsigned maxLevel>
+SkipList<T, maxLevel>::SkipList(SkipList<T, maxLevel>&& other) noexcept {
+	this->header = other.header;
+	other.header = nullptr;
+
+	this->size = other.size;
+	this->level = other.level;
+}
+
+template<class T, unsigned maxLevel>
 SkipList<T, maxLevel>& SkipList<T, maxLevel>::operator=(const SkipList<T, maxLevel>& other)
 {
 	if (this != &other) {
 		free();
 		copyFrom(other);
+	}
+	return *this;
+}
+
+template<class T, unsigned maxLevel>
+SkipList<T, maxLevel>& SkipList<T, maxLevel>::operator=(SkipList<T, maxLevel>&& other) noexcept {
+	if (this != &other) {
+		this->header = other.header;
+		other.header = nullptr;
+
+		this->size = other.size;
+		this->level = other.level;
 	}
 	return *this;
 }

@@ -156,11 +156,11 @@ public:
 		copy(other);
 	}
 
-	AVLTree(AVLTree&& other);
+	AVLTree(AVLTree&& other) noexcept;
 
 	AVLTree& operator=(const AVLTree& other);
 
-	AVLTree& operator=(AVLTree&& other);
+	AVLTree& operator=(AVLTree&& other) noexcept;
 
 	bool exists(const T& elem) const;
 
@@ -374,7 +374,7 @@ void AVLTree<T>::free() {
 }
 
 template<class T>
-AVLTree<T>::AVLTree(AVLTree<T>&& other) {
+AVLTree<T>::AVLTree(AVLTree<T>&& other) noexcept {
 	this->root = other.root;
 	other.root = nullptr;
 	nodesCount = other.nodesCount;
@@ -391,7 +391,7 @@ AVLTree<T>& AVLTree<T>::operator=(const AVLTree<T>& other) {
 }
 
 template<class T>
-AVLTree<T>& AVLTree<T>::operator=(AVLTree<T>&& other) {
+AVLTree<T>& AVLTree<T>::operator=(AVLTree<T>&& other) noexcept {
 	if (this != &other) {
 		free();
 
