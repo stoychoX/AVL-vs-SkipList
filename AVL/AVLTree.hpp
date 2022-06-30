@@ -56,7 +56,7 @@ private:
 			return (x > y) ? x : y;
 		}
 
-		static int getHeight(const Node const* r) {
+		static int getHeight(const Node* r) {
 			if (!r)
 				return 0;
 			return r->height;
