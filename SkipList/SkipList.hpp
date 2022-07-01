@@ -10,8 +10,6 @@
 * We make NodeBase class so we dont force having T in our header node as T might be "expencive".
 */
 
-// hello
-
 #ifndef SKIP_LIST_HEADER_
 #define SKIP_LIST_HEADER_
 #include<iostream>
