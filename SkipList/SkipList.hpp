@@ -91,17 +91,6 @@ private:
 
 		return toReturn;
 	}
-
-	static void pushPath(NodeBase*& here, Node*& path, int way) {
-		NodeBase* it = here;
-		while (it && it->forward[way]) {
-			it = it->forward[way];
-		}
-
-		if (it)
-			it->forward[way] = path;
-	}
-
 public:
 	SkipList();
 
@@ -330,7 +319,7 @@ void SkipList<T, maxLevel>::print() const {
 		int cnt = 0;
 
 		while (it) {
-			// std::cout << it->value << " ";
+			std::cout << it->value << " ";
 			++cnt;
 			it = it->forward[i];
 		}
@@ -358,6 +347,34 @@ void SkipList<T, maxLevel>::free() {
 	delete header;
 }
 
+/*
+* First we make copy of level zero. After that we don't need to allocate more memory. We just need to adjust pointers.
+* 
+* Node *currentIterator -> Keeps track of where we are in the current list.
+* Node *otherIterator   -> Used to iterate argument list.
+* 
+* Node** otherPaths		-> We use double pointer so we can compare adresses. 
+*						   The way we understand that pointer from level k points to element from level 0
+*						   is if they have the same memory adresses.
+* 
+* We iterate the whole list and for each level, if the adress of otherIterator 
+* is the same as the adress of the path we push the node in stack.
+* 
+* After we complete the iteration we have five stacks. stack[i] has the nodes
+* in level i+1. stack[i].top() is the last node of that level.
+* Now its easy to adjust header's forward pointers to point 
+* where they should.
+* 
+* Let n = other.size. If k = maxLevel is fixed constant we have:
+* 
+* copyZeroLevel: O(n)
+* while iteration: O(n)
+* for loop avarage case: n/2 + n / 4 + ... + n / (2^k) = O(n)
+* 
+* We have O(n) copy algorithm in avarage case.
+* 
+* Note: what if k = log(n)?
+*/
 template<class T, unsigned maxLevel>
 void SkipList<T, maxLevel>::copyFrom(const SkipList<T, maxLevel>& other) {
 	size = other.size;
@@ -369,22 +386,36 @@ void SkipList<T, maxLevel>::copyFrom(const SkipList<T, maxLevel>& other) {
 
 	Node* currentIterator = header->forward[0];
 	Node* otherIterator = other.header->forward[0];
-
+	
 	Node** otherPaths[maxLevel - 1];
+
+	std::stack<Node*> currentPaths[maxLevel - 1];
 
 	for (size_t i = 0; i < maxLevel - 1; i++)
 		otherPaths[i] = &other.header->forward[i + 1];
 
 	while (otherIterator) {
-		int j = 1;
+		unsigned j = 1;
 
 		while (j < maxLevel && (otherIterator == (*otherPaths[j - 1]))) {
-			pushPath(header, currentIterator, j);
+			currentPaths[j - 1].push(currentIterator);
+
 			(*otherPaths[j - 1]) = (*otherPaths[j - 1])->forward[j];
+			
 			j++;
 		}
 
 		currentIterator = currentIterator->forward[0];
 		otherIterator = otherIterator->forward[0];
+	}
+
+	for (size_t i = 0; i < maxLevel - 1; i++) {
+		while (!currentPaths[i].empty()) {
+			Node* top = currentPaths[i].top();
+			top->forward[i+1] = header->forward[i+1];
+			header->forward[i+1] = top;
+
+			currentPaths[i].pop();
+		}
 	}
 }
