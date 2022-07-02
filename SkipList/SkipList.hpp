@@ -66,7 +66,7 @@ private:
 	}
 
 	// Using stack approach bc it breaks
-	// when I try to copy list with over 25000 elements.
+	// when I try to copy list with over 25000 elements using recursion.
 	// Using this one we easily copy 100000 element list
 	static Node* copyZeroLevelStack(const Node* start) {
 		std::stack<const Node*> s;
