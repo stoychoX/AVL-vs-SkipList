@@ -13,6 +13,7 @@
 #ifndef SKIP_LIST_HEADER_
 #define SKIP_LIST_HEADER_
 #include<iostream>
+#include<stack>
 
 template<class T, unsigned maxLevel = 6>
 class SkipList {
@@ -64,13 +65,29 @@ private:
 		return toReturn;
 	}
 
-	static Node* copyZeroLever(const Node* start) {
-		if (start == nullptr)
-			return nullptr;
+	// Using stack approach bc it breaks
+	// when I try to copy list with over 25000 elements.
+	// Using this one we easily copy 100000 element list
+	static Node* copyZeroLevelStack(const Node* start) {
+		std::stack<const Node*> s;
 
-		Node* toReturn = new Node(start->value, start->levels);
+		const Node* it = start;
 
-		toReturn->forward[0] = copyZeroLever(start->forward[0]);
+		while (it) {
+			s.push(it);
+			it = it->forward[0];
+		}
+
+		Node* toReturn = nullptr;
+
+		while (!s.empty()) {
+			Node* toAdd = new Node(s.top()->value, s.top()->levels);
+
+			toAdd->forward[0] = toReturn;
+			toReturn = toAdd;
+
+			s.pop();
+		}
 
 		return toReturn;
 	}
@@ -348,7 +365,7 @@ void SkipList<T, maxLevel>::copyFrom(const SkipList<T, maxLevel>& other) {
 
 	header = new NodeBase(maxLevel);
 
-	header->forward[0] = copyZeroLever(other.header->forward[0]);
+	header->forward[0] = copyZeroLevelStack(other.header->forward[0]);
 
 	Node* currentIterator = header->forward[0];
 	Node* otherIterator = other.header->forward[0];
