@@ -1,10 +1,13 @@
-#include"AVL-vs-SkipList/AVL/AVLTree.hpp"
-#include"AVL-vs-SkipList/SkipList/SkipList.hpp"
+#include"../SkipList/SkipList.hpp"
+#include"../AVL/AVLTree.hpp"
+#include "../Benchmark/Timer.h"
+
+#include<benchmark/benchmark.h>
+
 #include<iostream>
 #include<fstream>
 #include<vector>
 #include<string>
-#include"AVL-vs-SkipList/Benchmark/Timer.h"
 
 std::string gen_random(const int len) {
 	static const char alphanum[] =
@@ -20,154 +23,140 @@ std::string gen_random(const int len) {
 	return tmp_s;
 }
 
-static void loadOxdfordOnSkipList() {
-	std::ifstream inFile("oxford-diff.txt");
-	SkipList<std::string, 12> toLoad;
+static void loadOxdfordOnSkipList(benchmark::State& state) {
+	for(auto x : state){
+		std::ifstream inFile("oxford-diff.txt");
+		SkipList<std::string, 12> toLoad;
 
-	int cnt = 0;
+		while (true) {
+			std::string word;
+			inFile >> word;
+			if (inFile.eof()) break;
 
-	while (true) {
-		std::string word;
-		inFile >> word;
-		if (inFile.eof()) break;
-
-		toLoad.insert(word);
-		++cnt;
+			toLoad.insert(word);
+		}
 	}
-
-	std::cout << cnt;
 }
 
-void loadOxdfordOnAVL() {
-	Timer t;
+static void loadOxdfordOnAVL(benchmark::State& state) {
+	for(auto x : state){
+		std::ifstream inFile("oxford-diff.txt");
+		AVLTree<std::string> toLoad;
 
-	std::ifstream inFile("oxford-diff.txt");
-	AVLTree<std::string> toLoad;
+		while (true) {
+			std::string word;
+			inFile >> word;
+			if (inFile.eof()) break;
 
-	int cnt = 0;
-
-	while (true) {
-		std::string word;
-		inFile >> word;
-		if (inFile.eof()) break;
-
-		toLoad.push(word);
-		++cnt;
+			toLoad.push(word);
+		}
 	}
-
-	std::cout << cnt;
 }
 
-void searchHardOnSkipList() {
-	std::ifstream inFile("oxford-diff.txt");
+static void searchHardOnSkipList(benchmark::State& state) {
+	for(auto x : state){
+		std::ifstream inFile("oxford-diff.txt");
 
-	SkipList<std::string, 12> toLoad;
+		SkipList<std::string, 12> toLoad;
 
-	while (true) {
-		std::string word;
-		inFile >> word;
-		if (inFile.eof()) break;
+		while (true) {
+			std::string word;
+			inFile >> word;
+			if (inFile.eof()) break;
 
-		toLoad.insert(word);
+			toLoad.insert(word);
+		}
+
+		for (size_t i = 0; i < 1000000; i++)
+			benchmark::DoNotOptimize(toLoad.containsElement(gen_random(12)));
 	}
-
-	Timer t;
-
-	int count = 0;
-
-	for (size_t i = 0; i < 1000000; i++)
-		count += toLoad.containsElement(gen_random(12));
-
-	std::cout << count;
 }
 
-void searchHardOnAVL() {
-	std::ifstream inFile("oxford-diff.txt");
+static void searchHardOnAVL(benchmark::State& state) {
+	for(auto x : state){
+		std::ifstream inFile("oxford-diff.txt");
 
-	AVLTree<std::string> toLoad;
+		AVLTree<std::string> toLoad;
 
-	while (true) {
-		std::string word;
-		inFile >> word;
-		if (inFile.eof()) break;
+		while (true) {
+			std::string word;
+			inFile >> word;
+			if (inFile.eof()) break;
 
-		toLoad.push(word);
+			toLoad.push(word);
+		}
+
+		for (size_t i = 0; i < 1000000; i++)
+			benchmark::DoNotOptimize(toLoad.exists(gen_random(12)));
 	}
-
-	Timer t;
-
-	int count = 0;
-
-	for (size_t i = 0; i < 1000000; i++)
-		count += toLoad.exists(gen_random(12));
-
-	std::cout << count;
 }
 
-void searchHarryOnSkipList() {
-	std::ifstream inFile("oxford-diff.txt");
-	SkipList<std::string, 12> toLoad;
+static void searchHarryOnSkipList(benchmark::State& state) {
+	for(auto x : state){
+		std::ifstream inFile("oxford-diff.txt");
+		SkipList<std::string, 12> toLoad;
 
-	int cnt = 0;
+		// Init with oxford
+		while (true) {
+			std::string word;
+			inFile >> word;
+			if (inFile.eof()) break;
+			toLoad.insert(word);
+		}
 
-	// Init with oxford
-	while (true) {
-		std::string word;
-		inFile >> word;
-		if (inFile.eof()) break;
-		toLoad.insert(word);
+		std::vector<std::string> c;
+
+		std::ifstream harry("harry.txt");
+		// Init with harry
+		while (true) {
+			std::string word;
+			harry >> word;
+			if (harry.eof())
+				break;
+
+			c.push_back(word);
+		}
+		for (size_t i = 0; i < c.size(); i++)
+			benchmark::DoNotOptimize(toLoad.containsElement(c[i]));
 	}
-
-	std::vector<std::string> c;
-
-	std::ifstream harry("harry.txt");
-	// Init with harry
-	while (true) {
-		std::string word;
-		harry >> word;
-		if (harry.eof())
-			break;
-
-		c.push_back(word);
-	}
-	Timer t;
-	for (size_t i = 0; i < c.size(); i++)
-		cnt += toLoad.containsElement(c[i]);
-	std::cout << cnt;
 }
 
-void searchHarryOnAVL() {
-	std::ifstream inFile("oxford-diff.txt");
-	AVLTree<std::string> toLoad;
+static void searchHarryOnAVL(benchmark::State& state) {
+	for(auto x : state){
+		std::ifstream inFile("oxford-diff.txt");
+		AVLTree<std::string> toLoad;
 
-	int cnt = 0;
+		// Init with oxford
+		while (true) {
+			std::string word;
+			inFile >> word;
+			if (inFile.eof()) break;
+			toLoad.push(word);
+		}
 
-	// Init with oxford
-	while (true) {
-		std::string word;
-		inFile >> word;
-		if (inFile.eof()) break;
-		toLoad.push(word);
-	}
+		std::vector<std::string> c;
 
-	std::vector<std::string> c;
+		std::ifstream harry("harry.txt");
+		// Init with harry
+		while (true) {
+			std::string word;
+			harry >> word;
+			if (harry.eof())
+				break;
 
-	std::ifstream harry("harry.txt");
-	// Init with harry
-	while (true) {
-		std::string word;
-		harry >> word;
-		if (harry.eof())
-			break;
+			c.push_back(word);
+		}
 
-		c.push_back(word);
-	}
-	Timer t;
-	for (size_t i = 0; i < c.size(); i++)
-		cnt += toLoad.exists(c[i]);
-	std::cout << cnt;
+		for (size_t i = 0; i < c.size(); i++)
+			benchmark::DoNotOptimize(toLoad.exists(c[i]));
+		}
 }
 
-int main() {
+BENCHMARK(loadOxdfordOnSkipList);
+//BENCHMARK(loadOxdfordOnAVL);
+//BENCHMARK(searchHardOnSkipList);
+//BENCHMARK(searchHardOnAVL);
+//BENCHMARK(searchHarryOnSkipList);
+//BENCHMARK(searchHarryOnAVL);
 
-}
+BENCHMARK_MAIN();
