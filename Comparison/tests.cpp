@@ -9,7 +9,7 @@
 #include<vector>
 #include<string>
 
-const int ELEMS = 100000;
+const int ELEMS = 70000;
 
 std::string gen_random(const int len) {
 	static const char alphanum[] =
@@ -122,7 +122,7 @@ static void searchHarryOnSkipList(benchmark::State& state) {
 }
 
 static void searchHarryOnAVL(benchmark::State& state) {
-	for(auto x : state){
+	for(auto x : state) {
 		std::ifstream inFile("oxford-diff.txt");
 		AVLTree<std::string> toLoad;
 
@@ -137,6 +137,7 @@ static void searchHarryOnAVL(benchmark::State& state) {
 		std::vector<std::string> c;
 
 		std::ifstream harry("harry.txt");
+		
 		// Init with harry
 		for(int i = 0; i < ELEMS; ++i){
 			std::string word;
