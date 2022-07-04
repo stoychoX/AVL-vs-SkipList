@@ -9,6 +9,8 @@
 #include<vector>
 #include<string>
 
+const int ELEMS = 100000;
+
 std::string gen_random(const int len) {
 	static const char alphanum[] =
 		"0123456789"
@@ -28,11 +30,9 @@ static void loadOxdfordOnSkipList(benchmark::State& state) {
 		std::ifstream inFile("oxford-diff.txt");
 		SkipList<std::string, 12> toLoad;
 
-		while (true) {
+		for(int i = 0; i < ELEMS; ++i){
 			std::string word;
 			inFile >> word;
-			if (inFile.eof()) break;
-
 			toLoad.insert(word);
 		}
 	}
@@ -43,7 +43,7 @@ static void loadOxdfordOnAVL(benchmark::State& state) {
 		std::ifstream inFile("oxford-diff.txt");
 		AVLTree<std::string> toLoad;
 
-		while (true) {
+		for(int i = 0; i < ELEMS; ++i){
 			std::string word;
 			inFile >> word;
 			if (inFile.eof()) break;
@@ -59,7 +59,7 @@ static void searchHardOnSkipList(benchmark::State& state) {
 
 		SkipList<std::string, 12> toLoad;
 
-		while (true) {
+		for(int i = 0; i < ELEMS; ++i){
 			std::string word;
 			inFile >> word;
 			if (inFile.eof()) break;
@@ -78,7 +78,7 @@ static void searchHardOnAVL(benchmark::State& state) {
 
 		AVLTree<std::string> toLoad;
 
-		while (true) {
+		for(int i = 0; i < ELEMS; ++i){
 			std::string word;
 			inFile >> word;
 			if (inFile.eof()) break;
@@ -97,7 +97,7 @@ static void searchHarryOnSkipList(benchmark::State& state) {
 		SkipList<std::string, 12> toLoad;
 
 		// Init with oxford
-		while (true) {
+		for(int i = 0; i < ELEMS; ++i){
 			std::string word;
 			inFile >> word;
 			if (inFile.eof()) break;
@@ -108,7 +108,7 @@ static void searchHarryOnSkipList(benchmark::State& state) {
 
 		std::ifstream harry("harry.txt");
 		// Init with harry
-		while (true) {
+		for(int i = 0; i < ELEMS; ++i){
 			std::string word;
 			harry >> word;
 			if (harry.eof())
@@ -127,7 +127,7 @@ static void searchHarryOnAVL(benchmark::State& state) {
 		AVLTree<std::string> toLoad;
 
 		// Init with oxford
-		while (true) {
+		for(int i = 0; i < ELEMS; ++i){
 			std::string word;
 			inFile >> word;
 			if (inFile.eof()) break;
@@ -138,7 +138,7 @@ static void searchHarryOnAVL(benchmark::State& state) {
 
 		std::ifstream harry("harry.txt");
 		// Init with harry
-		while (true) {
+		for(int i = 0; i < ELEMS; ++i){
 			std::string word;
 			harry >> word;
 			if (harry.eof())
@@ -153,10 +153,10 @@ static void searchHarryOnAVL(benchmark::State& state) {
 }
 
 BENCHMARK(loadOxdfordOnSkipList);
-//BENCHMARK(loadOxdfordOnAVL);
-//BENCHMARK(searchHardOnSkipList);
-//BENCHMARK(searchHardOnAVL);
-//BENCHMARK(searchHarryOnSkipList);
-//BENCHMARK(searchHarryOnAVL);
+BENCHMARK(loadOxdfordOnAVL);
+BENCHMARK(searchHardOnSkipList);
+BENCHMARK(searchHardOnAVL);
+BENCHMARK(searchHarryOnSkipList);
+BENCHMARK(searchHarryOnAVL);
 
 BENCHMARK_MAIN();
