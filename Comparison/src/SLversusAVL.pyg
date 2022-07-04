@@ -1,0 +1,6 @@
+		SkipList<int> sl;
+		
+		for (size_t i = 0; i < 10000; i++)
+		sl.insert(i);
+		
+		sl.print();
