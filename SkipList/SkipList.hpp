@@ -319,7 +319,7 @@ void SkipList<T, maxLevel>::print() const {
 		int cnt = 0;
 
 		while (it) {
-			std::cout << it->value << " ";
+			// std::cout << it->value << " ";
 			++cnt;
 			it = it->forward[i];
 		}
