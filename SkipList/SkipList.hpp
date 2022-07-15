@@ -224,9 +224,9 @@ const T& SkipList<T, maxLevel>::search(const T& elem) const {
 	it = it->forward[0];
 
 	if (it) {
-		it = static_cast<Node*>(it);
-		if (it->value == elem)
-			return it->value;
+		Node* its = static_cast<Node*>(it);
+		if (its->value == elem)
+			return its->value;
 	}
 
 	throw std::exception("No such element!");
