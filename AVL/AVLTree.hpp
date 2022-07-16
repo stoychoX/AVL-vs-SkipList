@@ -18,42 +18,29 @@ private:
 			if (!subTree || !subTree->right)
 				return;
 
-			T temp = subTree->data;
-			subTree->data = subTree->right->data;
-			subTree->right->data = temp;
-
 			Node* originalRight = subTree->right;
-
-			subTree->right = originalRight->right;
-
-			originalRight->right = originalRight->left;
-
-			originalRight->left = subTree->left;
-
-			subTree->left = originalRight;
+			subTree->right = originalRight->left;
+			originalRight->left = subTree;
+			subTree = originalRight;
 		}
 
 		static void rotateRight(Node*& subTree) {
 			if (!subTree || !subTree->left)
 				return;
 
-			T temp = subTree->data;
-			subTree->data = subTree->left->data;
-			subTree->left->data = temp;
-
 			Node* originalLeft = subTree->left;
-
-			subTree->left = originalLeft->left;
-
-			originalLeft->left = originalLeft->right;
-
-			originalLeft->right = subTree->right;
-
-			subTree->right = originalLeft;
+			subTree->left = originalLeft->right;
+			originalLeft->right = subTree;
+			subTree = originalLeft;
 		}
 
 		static inline int max(int x, int y) {
 			return (x > y) ? x : y;
+		}
+
+		static void updateHeight(Node* r) {
+			if (r)
+				r->height = Node::max(Node::getHeight(r->left), Node::getHeight(r->right)) + 1;
 		}
 
 		static int getHeight(const Node* r) {
@@ -202,8 +189,10 @@ int AVLTree<T>::pushRec(const T& elem, Node*& r) {
 		if (res != 1)
 			return res;
 
-		if (searchForLeftDisbalance(r) == 1)
+		if (searchForLeftDisbalance(r) == 1) {
+			Node::updateHeight(r);
 			return 2;
+		}
 	}
 	else {
 		res = pushRec(elem, r->right);
@@ -211,12 +200,14 @@ int AVLTree<T>::pushRec(const T& elem, Node*& r) {
 		if (res != 1)
 			return res;
 
-		if (searchForRightDisbalance(r) == 1)
+		if (searchForRightDisbalance(r) == 1) {
+			Node::updateHeight(r);
 			return 2;
+		}
 	}
 
-	r->height = Node::max(Node::getHeight(r->left), Node::getHeight(r->right)) + 1;	// Увеличаваме височината само ако не сме направили ротация
-	return res;																		// Ако сме направили ротация връщаме отново 2
+	Node::updateHeight(r);
+	return res;
 }
 
 template<class T>
@@ -282,7 +273,7 @@ int AVLTree<T>::removeRec(Node*& r, const T& elem) {
 	searchForLeftDisbalance(r);
 	searchForRightDisbalance(r);
 
-	r->height = Node::max(Node::getHeight(r->left), Node::getHeight(r->right)) + 1;
+	Node::updateHeight(r);
 
 	return res;
 }
@@ -322,16 +313,13 @@ int AVLTree<T>::searchForLeftDisbalance(Node*& r) {
 	}
 
 	if (balance == -2) {
-		if (balanceRight == 1) {
+		if (balanceRight == 1)
 			AVLTree::Node::rotateLeft(r->left);
-		}
 
 		AVLTree::Node::rotateRight(r);
 
-		if (r->right) {
-			r->right->height = Node::max(Node::getHeight(r->right->left), Node::getHeight(r->right->right)) + 1;
-		}
-
+		Node::updateHeight(r->left);
+		Node::updateHeight(r->right);
 		return 1;
 	}
 
@@ -352,15 +340,13 @@ int AVLTree<T>::searchForRightDisbalance(Node*& r) {
 	}
 
 	if (balance == 2) {
-		if (balanceLeft == -1) {
+		if (balanceLeft == -1)
 			AVLTree::Node::rotateRight(r->right);
-		}
 
 		AVLTree::Node::rotateLeft(r);
 
-		if (r->left) {
-			r->left->height = Node::max(Node::getHeight(r->left->left), Node::getHeight(r->left->right)) + 1;
-		}
+		Node::updateHeight(r->left);
+		Node::updateHeight(r->right);
 
 		return 1;
 	}

@@ -1,14 +1,15 @@
 //www.github.com/doctest
 #include "AVLTree.hpp"
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include"doctest.h"
+#include"../../doctest.h"
 #include<cmath>
 #include <random>       // std::default_random_engine
 #include <chrono>       // std::chrono::system_clock
 #include<algorithm>
 #include<string>
 
-bool correctHeight(const AVLTree<int>& t) {
+template<class T>
+bool correctHeight(const AVLTree<T>& t) {
 	if (t.getHeight() == 0)
 		return true;
 
@@ -18,13 +19,14 @@ bool correctHeight(const AVLTree<int>& t) {
 	return lowerBound <= t.getHeight() && t.getHeight() <= upperBound;
 }
 
-bool isAVL(const AVLTree<int>::iterator& t) {
+template<class T>
+bool isAVL(const typename AVLTree<T>::iterator& t) {
 	if (!t.isValid())
 		return true;
 	int lHeight = (--t).getHeight();
 	int rHeight = (++t).getHeight();
 
-	return std::abs(rHeight - lHeight) < 2 && isAVL(++t) && isAVL(--t);
+	return std::abs(rHeight - lHeight) < 2 && isAVL<T>(++t) && isAVL<T>(--t);
 }
 
 TEST_CASE("test on big tree") {
@@ -35,7 +37,7 @@ TEST_CASE("test on big tree") {
 	for (int i = 0; i < nodesCount; i++)
 		t.push((rand() % (2 * nodesCount)) + 1);
 
-	CHECK(isAVL(t.begin()));
+	CHECK(isAVL<int>(t.begin()));
 	CHECK(correctHeight(t));
 }
 
@@ -46,7 +48,7 @@ TEST_CASE("test BST property and correct heigth on 100 random trees") {
 
 		for (int i = 0; i < randNumberOfNodes; i++)
 			t.push(rand() % 10000);
-		CHECK(isAVL(t.begin()));
+		CHECK(isAVL<int>(t.begin()));
 		CHECK(correctHeight(t));
 	}
 }
@@ -55,7 +57,7 @@ TEST_CASE("check on one element tree") {
 	AVLTree<int> t;
 	t.push(1);
 
-	CHECK(isAVL(t.begin()));
+	CHECK(isAVL<int>(t.begin()));
 	CHECK(correctHeight(t));
 }
 
@@ -105,7 +107,7 @@ TEST_CASE("check avl property after removing element with rotation") {
 
 	t.removeElement(6);
 
-	CHECK(isAVL(t.begin()));
+	CHECK(isAVL<int>(t.begin()));
 	CHECK(correctHeight(t));
 }
 
@@ -117,7 +119,7 @@ TEST_CASE("check avl property after removing a lot of elements") {
 
 	for (int i = 0; i < 100; i += 3) {
 		t.removeElement(i);
-		CHECK(isAVL(t.begin()));
+		CHECK(isAVL<int>(t.begin()));
 		CHECK(correctHeight(t));
 	}
 }
@@ -148,9 +150,20 @@ TEST_CASE("check nodes count") {
 	for (int i = 0; i < length; i++) {
 		t.removeElement(v[i]);
 
-		CHECK(isAVL(t.begin()));
+		CHECK(isAVL<int>(t.begin()));
 		CHECK(correctHeight(t));
 		CHECK(--cnt == t.getNodesCount());
+	}
+}
+
+TEST_CASE("Some more trees") {
+	AVLTree<char> tree;
+
+	for (size_t i = 0; i < 10000; i++)
+	{
+		tree.push(rand() % 256);
+		CHECK(isAVL<char>(tree.begin()));
+		CHECK(correctHeight(tree));
 	}
 }
 
@@ -164,16 +177,5 @@ TEST_CASE("different-types") {
 
 	AVLTree<std::string> stringTree;
 
-	std::fstream outFile("Source.cpp");
-
-	CHECK(outFile.is_open());
-
-	std::string str;
-
-	for (size_t i = 0; i < 100; i++) {
-		outFile >> str;
-		stringTree.push(str);
-	}
-	
-	CHECK(stringTree.exists("if"));
+	/*TODO: add test on string tree!*/
 }
