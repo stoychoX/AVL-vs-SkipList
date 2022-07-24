@@ -1,6 +1,7 @@
 ﻿#ifndef AVL_TREE_HEADER
 #define AVL_TREE_HEADER
 #include<cassert>
+#include<utility>
 
 // BF = height(right) - height(left) \in {-1, 0, 1}
 
@@ -79,8 +80,10 @@ private:
 	void copy(const AVLTree& other);
 
 	int removeRec(Node*& r, const T& elem);
+	
+	Node* balanceLeftPathAndGetMinNode(Node* rightOfRoot, Node*& minNode);
 
-	Node* findMinLeft(Node* r) const;
+	void innerVertexRemovalCase(Node*& rootNode, Node*& rightOfRoot);
 
 	bool existRec(const T& elem, const Node* r) const;
 
@@ -240,24 +243,18 @@ int AVLTree<T>::removeRec(Node*& r, const T& elem) {
 			return 1;
 		}
 		else if ((r->left && !r->right) || (!r->left && r->right)) {
-			r->data = r->left ? r->left->data : r->right->data;
+			Node* swapAndDelete = r->left ? r->left : r->right;
 
-			if (r->left) {
-				delete r->left;
-				r->left = nullptr;
-			}
-			else {
-				delete r->right;
-				r->right = nullptr;
-			}
+			std::swap(r, swapAndDelete);
+			
+			delete swapAndDelete;
 
-			r->height = 1;
+			Node::updateHeight(r);
 
 			return 1;
 		}
 		else {
-			r->data = findMinLeft(r->right)->data;
-			res = removeRec(r->right, r->data);
+			innerVertexRemovalCase(r, r->right);
 		}
 	}
 	else if (r->data > elem) {
@@ -269,22 +266,48 @@ int AVLTree<T>::removeRec(Node*& r, const T& elem) {
 
 	if (res != 1)
 		return res;
+	Node::updateHeight(r);
 
 	searchForLeftDisbalance(r);
 	searchForRightDisbalance(r);
 
-	Node::updateHeight(r);
-
 	return res;
 }
 
+// Oh no! What about single responsibility principle!!!???
+// We do double work here as we first
+// find the minNode and then we use backtracking to
+// balance the tree.
 template<class T>
-typename AVLTree<T>::Node* AVLTree<T>::findMinLeft(Node* r) const {
-	assert(r != nullptr);
+inline typename AVLTree<T>::Node* AVLTree<T>::balanceLeftPathAndGetMinNode(Node* rightOfRoot, Node*& minNode) {
+	if (rightOfRoot->left == nullptr) {
+		minNode = rightOfRoot;
+		return minNode->right;
+	}
 
-	if (!r->left)
-		return r;
-	return findMinLeft(r->left);
+	rightOfRoot->left = balanceLeftPathAndGetMinNode(rightOfRoot->left, minNode);
+
+	Node::updateHeight(rightOfRoot);
+
+	// searchForLeftDisbalance(rightOfRoot); -> Never occur as we iterare only left path	
+	searchForRightDisbalance(rightOfRoot);
+
+	return rightOfRoot;
+}
+
+template<class T>
+inline void AVLTree<T>::innerVertexRemovalCase(Node*& rootNode, Node*& rightOfRoot) {
+	Node* toDelete = rootNode;
+
+	Node* minNode;
+
+	rightOfRoot = balanceLeftPathAndGetMinNode(rightOfRoot, minNode);
+
+	minNode->left = rootNode->left;
+	minNode->right = rootNode->right;
+	rootNode = minNode;
+
+	delete toDelete;
 }
 
 template<class T>
@@ -320,6 +343,7 @@ int AVLTree<T>::searchForLeftDisbalance(Node*& r) {
 
 		Node::updateHeight(r->left);
 		Node::updateHeight(r->right);
+		Node::updateHeight(r);
 		return 1;
 	}
 
@@ -347,6 +371,7 @@ int AVLTree<T>::searchForRightDisbalance(Node*& r) {
 
 		Node::updateHeight(r->left);
 		Node::updateHeight(r->right);
+		Node::updateHeight(r);
 
 		return 1;
 	}
