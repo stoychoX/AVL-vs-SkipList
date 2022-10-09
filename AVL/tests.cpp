@@ -20,7 +20,7 @@ bool correctHeight(const AVLTree<T>& t) {
 }
 
 template<class T>
-bool isAVL(const typename AVLTree<T>::iterator& t) {
+bool isAVL(const typename AVLTree<T>::nodeProxy& t) {
 	if (!t.isValid())
 		return true;
 	int lHeight = (--t).getHeight();
@@ -37,7 +37,7 @@ TEST_CASE("test on big tree") {
 	for (int i = 0; i < nodesCount; i++)
 		t.push((rand() % (2 * nodesCount)) + 1);
 
-	CHECK(isAVL<int>(t.begin()));
+	CHECK(isAVL<int>(t.rootProxy()));
 	CHECK(correctHeight(t));
 }
 
@@ -48,7 +48,7 @@ TEST_CASE("test BST property and correct heigth on 100 random trees") {
 
 		for (int i = 0; i < randNumberOfNodes; i++)
 			t.push(rand() % 10000);
-		CHECK(isAVL<int>(t.begin()));
+		CHECK(isAVL<int>(t.rootProxy()));
 		CHECK(correctHeight(t));
 	}
 }
@@ -57,7 +57,7 @@ TEST_CASE("check on one element tree") {
 	AVLTree<int> t;
 	t.push(1);
 
-	CHECK(isAVL<int>(t.begin()));
+	CHECK(isAVL<int>(t.rootProxy()));
 	CHECK(correctHeight(t));
 }
 
@@ -107,7 +107,7 @@ TEST_CASE("check avl property after removing element with rotation") {
 
 	t.removeElement(6);
 
-	CHECK(isAVL<int>(t.begin()));
+	CHECK(isAVL<int>(t.rootProxy()));
 	CHECK(correctHeight(t));
 }
 
@@ -119,7 +119,7 @@ TEST_CASE("check avl property after removing a lot of elements") {
 
 	for (int i = 0; i < 100; i += 3) {
 		t.removeElement(i);
-		CHECK(isAVL<int>(t.begin()));
+		CHECK(isAVL<int>(t.rootProxy()));
 		CHECK(correctHeight(t));
 	}
 }
@@ -150,7 +150,7 @@ TEST_CASE("check nodes count") {
 	for (int i = 0; i < length; i++) {
 		t.removeElement(v[i]);
 
-		CHECK(isAVL<int>(t.begin()));
+		CHECK(isAVL<int>(t.rootProxy()));
 		CHECK(correctHeight(t));
 		CHECK(--cnt == t.getNodesCount());
 	}
@@ -162,7 +162,7 @@ TEST_CASE("Some more trees") {
 	for (size_t i = 0; i < 10000; i++)
 	{
 		tree.push(rand() % 256);
-		CHECK(isAVL<char>(tree.begin()));
+		CHECK(isAVL<char>(tree.rootProxy()));
 		CHECK(correctHeight(tree));
 	}
 }

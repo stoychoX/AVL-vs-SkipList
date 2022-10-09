@@ -10,10 +10,9 @@ class AVLTree {
 private:
 	struct Node {
 		T data;
-		int height;
-
 		Node* left;
 		Node* right;
+		int height;
 
 		static void rotateLeft(Node*& subTree) {
 			if (!subTree || !subTree->right)
@@ -93,22 +92,22 @@ private:
 
 	void free();
 public:
-	class iterator {
+	class nodeProxy {
 	private:
 		Node* currNode;
 
-		iterator(Node* r) : currNode(r) {}
+		nodeProxy(Node* r) : currNode(r) {}
 	public:
-		iterator() = delete;
-		iterator(const iterator&) = default;
+		nodeProxy() = delete;
+		nodeProxy(const nodeProxy&) = default;
 
-		iterator(const AVLTree& tree) : currNode(tree.root) {}
+		nodeProxy(const AVLTree& tree) : currNode(tree.root) {}
 
-		iterator operator++() const {
+		nodeProxy operator++() const {
 			if (isValid()) {
-				return iterator(currNode->right);
+				return nodeProxy(currNode->right);
 			}
-			return iterator(currNode);
+			return nodeProxy(currNode);
 		}
 
 		int getHeight() const {
@@ -126,11 +125,11 @@ public:
 			return currNode->data;
 		}
 
-		iterator operator--() const {
+		nodeProxy operator--() const {
 			if (isValid()) {
-				return iterator(currNode->left);
+				return nodeProxy(currNode->left);
 			}
-			return iterator(currNode);
+			return nodeProxy(currNode);
 		}
 
 		bool isValid() const {
@@ -158,7 +157,7 @@ public:
 
 	int removeElement(const T& elem);
 
-	iterator begin() const;
+	nodeProxy rootProxy() const;
 
 	int push(const T& elem);
 
@@ -434,8 +433,8 @@ int AVLTree<T>::removeElement(const T& elem) {
 }
 
 template<class T>
-typename AVLTree<T>::iterator AVLTree<T>::begin() const {
-	return AVLTree::iterator(*this);
+typename AVLTree<T>::nodeProxy AVLTree<T>::rootProxy() const {
+	return AVLTree::nodeProxy(*this);
 }
 
 template<class T>
