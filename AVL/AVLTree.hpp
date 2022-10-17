@@ -2,6 +2,7 @@
 #define AVL_TREE_HEADER
 #include<cassert>
 #include<utility>
+#include<fstream>
 
 // BF = height(right) - height(left) \in {-1, 0, 1}
 
@@ -91,6 +92,8 @@ private:
 	int searchForLeftDisbalance(Node*& r);
 
 	void free();
+
+	void recFillFileStream(std::ofstream& outFile, const Node* r) const; 
 public:
 	class nodeProxy {
 	private:
@@ -164,6 +167,8 @@ public:
 	int getHeight() const;
 
 	bool isEmpty() const;
+
+	void exportToTex(const char* filePath) const;
 
 	~AVLTree();
 };
@@ -455,6 +460,33 @@ int AVLTree<T>::getHeight() const {
 template<class T>
 bool AVLTree<T>::isEmpty() const {
 	return (root == nullptr);
+}
+
+template<class T>
+void AVLTree<T>::recFillFileStream(std::ofstream& outFile, const Node* r) const {
+	if(r == nullptr)
+		return;
+
+	outFile << "[" << r->data << " ";
+	recFillFileStream(outFile, r->left);
+	recFillFileStream(outFile, r->right);
+
+	outFile << "]";
+}
+
+template<class T>
+void AVLTree<T>::exportToTex(const char* filePath) const {
+	std::ofstream outFile(filePath, std::ios::trunc);
+
+	outFile << "\\documentclass[tikz,border=10pt]{standalone}" << std::endl;
+	outFile << "\\usepackage[linguistics]{forest}" << std::endl;
+	outFile << "\\begin{document}" << std::endl;
+	outFile << "\\begin{forest}" << std::endl;
+
+	recFillFileStream(outFile, root);
+
+	outFile << "\\end{forest}";
+	outFile << "\\end{document}";
 }
 
 template<class T>
