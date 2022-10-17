@@ -1,3 +1,6 @@
+// Simple way to draw small trees on latex
+// Simply copy the dump.txt code and paste it in overleaf
+
 #include"AVLTree.hpp"
 
 void draw() {
