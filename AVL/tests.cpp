@@ -176,6 +176,16 @@ TEST_CASE("different-types") {
 	CHECK(noSignTree.getNodesCount() == 100);
 
 	AVLTree<std::string> stringTree;
+}
 
-	/*TODO: add test on string tree!*/
+TEST_CASE("basic test on iterator") {
+	AVLTree<int> t;
+
+	const int ELEMENTS = 10000;
+
+	for(int i = 0; i < ELEMENTS; i++) {
+		t.push(rand());
+	}
+
+	CHECK(std::is_sorted(t.begin(), t.end()));
 }
