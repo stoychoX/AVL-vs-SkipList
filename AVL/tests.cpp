@@ -20,7 +20,7 @@ bool correctHeight(const AVLTree<T>& t) {
 }
 
 template<class T>
-bool isAVL(const typename AVLTree<T>::nodeProxy& t) {
+bool isAVL(const typename AVLTree<T>::NodeProxy& t) {
 	if (!t.isValid())
 		return true;
 	int lHeight = (--t).getHeight();

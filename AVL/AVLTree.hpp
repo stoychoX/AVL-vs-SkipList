@@ -3,6 +3,8 @@
 #include<cassert>
 #include<utility>
 #include<fstream>
+#include<stack>
+#include<exception>
 
 // BF = height(right) - height(left) \in {-1, 0, 1}
 
@@ -95,22 +97,22 @@ private:
 
 	void recFillFileStream(std::ofstream& outFile, const Node* r) const; 
 public:
-	class nodeProxy {
+	class NodeProxy {
 	private:
 		Node* currNode;
 
-		nodeProxy(Node* r) : currNode(r) {}
+		NodeProxy(Node* r) : currNode(r) {}
 	public:
-		nodeProxy() = delete;
-		nodeProxy(const nodeProxy&) = default;
+		NodeProxy() = delete;
+		NodeProxy(const NodeProxy&) = default;
 
-		nodeProxy(const AVLTree& tree) : currNode(tree.root) {}
+		NodeProxy(const AVLTree& tree) : currNode(tree.root) {}
 
-		nodeProxy operator++() const {
+		NodeProxy operator++() const {
 			if (isValid()) {
-				return nodeProxy(currNode->right);
+				return NodeProxy(currNode->right);
 			}
-			return nodeProxy(currNode);
+			return NodeProxy(currNode);
 		}
 
 		int getHeight() const {
@@ -128,16 +130,136 @@ public:
 			return currNode->data;
 		}
 
-		nodeProxy operator--() const {
+		NodeProxy operator--() const {
 			if (isValid()) {
-				return nodeProxy(currNode->left);
+				return NodeProxy(currNode->left);
 			}
-			return nodeProxy(currNode);
+			return NodeProxy(currNode);
 		}
 
 		bool isValid() const {
 			return currNode != nullptr;
 		}
+	};
+
+	class Iterator {
+	private:
+		std::stack<Node*> currentNodes;
+
+		Iterator(Node* startNode) {
+			init(startNode);
+		}
+
+		void init(Node* initializeFrom) {
+			while(initializeFrom) {
+				currentNodes.push(initializeFrom);
+				initializeFrom = initializeFrom->left;
+			}
+		}
+
+		bool emptyStack() const {return currentNodes.empty(); }
+
+		Iterator() = default;
+	public:
+		bool operator==(const Iterator& other) const {
+			if(emptyStack() && other.emptyStack())
+				return true;
+
+			else if(emptyStack() || other.emptyStack()) {
+				return false;
+			}
+
+			return (currentNodes.top() == other.currentNodes.top());
+		}
+
+		bool operator!=(const Iterator& other) const {
+			return !(this->operator==(other));
+		}
+
+		Iterator& operator++() {
+			Node* current = currentNodes.top();
+			currentNodes.pop();
+			init(current->right);
+
+			return *this;
+		}
+
+		Iterator operator++(int) {
+			Iterator temp = *this;
+			++*this;
+			return temp;
+		}
+
+		T& operator*() {
+			if(emptyStack())
+				throw std::runtime_error("Reached end of collection!");
+			
+			return currentNodes.top()->data;
+		}
+
+		friend class AVLTree;
+	};
+
+	class ConstIterator {
+	private:
+		std::stack<const Node*> currentNodes;
+
+		ConstIterator(const Node* startNode) {
+			init(startNode);
+		}
+
+		void init(const Node* initializeFrom) {
+			while(initializeFrom) {
+				currentNodes.push(initializeFrom);
+				initializeFrom = initializeFrom->left;
+			}
+		}
+
+		bool emptyStack() const {return currentNodes.empty(); }
+
+		ConstIterator() = default;
+	public:
+
+		bool operator==(const ConstIterator& other) const {
+			if(emptyStack() && other.emptyStack())
+				return true;
+
+			else if(emptyStack() || other.emptyStack()) {
+				return false;
+			}
+
+			return (currentNodes.top() == other.currentNodes.top());
+		}
+
+		bool operator!=(const ConstIterator& other) const {
+			return !(this->operator!=(other));
+		}
+
+		ConstIterator& operator++() {
+			if(emptyStack())
+				return *this;
+			
+			Node* current = currentNodes.top();
+			currentNodes.pop();
+			init(current->right);
+
+			return *this;
+		}
+
+		ConstIterator operator++(int) {
+			Iterator temp = *this;
+			++*this;
+			return temp;
+		}
+
+		const T& operator*() const {
+			if(emptyStack())
+				throw std::runtime_error("Reached end of collection!");
+			
+			return currentNodes.top()->data;
+		}
+
+		friend class AVLTree;
 	};
 
 	AVLTree() : root(nullptr), nodesCount(0) {}
@@ -160,7 +282,30 @@ public:
 
 	int removeElement(const T& elem);
 
-	nodeProxy rootProxy() const;
+	NodeProxy rootProxy() const;
+
+	Iterator begin() {
+		return Iterator(root);
+	}
+
+	ConstIterator begin() const {
+		return ConstIterator(root);
+	}
+	
+	ConstIterator cbegin() const {
+		return ConstIterator(root);
+	}
+
+	Iterator end() {
+		return Iterator();
+	}
+	ConstIterator end() const{
+		return ConstIterator();
+	}
+
+	ConstIterator cend() const {
+		return ConstIterator();
+	}
 
 	int push(const T& elem);
 
@@ -438,8 +583,8 @@ int AVLTree<T>::removeElement(const T& elem) {
 }
 
 template<class T>
-typename AVLTree<T>::nodeProxy AVLTree<T>::rootProxy() const {
-	return AVLTree::nodeProxy(*this);
+typename AVLTree<T>::NodeProxy AVLTree<T>::rootProxy() const {
+	return AVLTree::NodeProxy(*this);
 }
 
 template<class T>
