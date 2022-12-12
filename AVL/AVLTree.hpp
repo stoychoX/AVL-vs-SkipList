@@ -348,10 +348,8 @@ int AVLTree<T>::pushRec(const T& elem, Node*& r) {
 		if (res != 1)
 			return res;
 
-		if (searchForLeftDisbalance(r) == 1) {
-			Node::updateHeight(r);
+		if (searchForLeftDisbalance(r) == 1)
 			return 2;
-		}
 	}
 	else {
 		res = pushRec(elem, r->right);
@@ -359,10 +357,8 @@ int AVLTree<T>::pushRec(const T& elem, Node*& r) {
 		if (res != 1)
 			return res;
 
-		if (searchForRightDisbalance(r) == 1) {
-			Node::updateHeight(r);
+		if (searchForRightDisbalance(r) == 1)
 			return 2;
-		}
 	}
 
 	Node::updateHeight(r);
@@ -422,6 +418,7 @@ int AVLTree<T>::removeRec(Node*& r, const T& elem) {
 
 	if (res != 1)
 		return res;
+	
 	Node::updateHeight(r);
 
 	searchForLeftDisbalance(r);
