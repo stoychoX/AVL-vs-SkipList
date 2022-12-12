@@ -37,6 +37,13 @@ private:
 			subTree = originalLeft;
 		}
 
+		static int getBalanceFactor(const Node* r) {
+			if(r == nullptr)
+				return 0;
+			
+			return Node::getHeight(r->right) - getHeight(r->left);
+		} 
+
 		static inline int max(int x, int y) {
 			return (x > y) ? x : y;
 		}
@@ -84,7 +91,7 @@ private:
 	int removeRec(Node*& r, const T& elem);
 	
 	Node* balanceLeftPathAndGetMinNode(Node* rightOfRoot, Node*& minNode);
-
+	
 	void innerVertexRemovalCase(Node*& rootNode, Node*& rightOfRoot);
 
 	bool existRec(const T& elem, const Node* r) const;
@@ -473,24 +480,21 @@ bool AVLTree<T>::existRec(const T& elem, const Node* r) const {
 
 template<class T>
 int AVLTree<T>::searchForLeftDisbalance(Node*& r) {
-	int balance = 0;
-	int balanceRight = 0;
+	assert(r);
 
-	balance += r->right ? r->right->height : 0;
-	balance -= r->left ? r->left->height : 0;
-
-	if (r->left) {
-		balanceRight += r->left->right ? r->left->right->height : 0;
-		balanceRight -= r->left->left ? r->left->left->height : 0;
-	}
+	int balance = Node::getBalanceFactor(r);
+	int balanceRight = Node::getBalanceFactor(r->left);
 
 	if (balance == -2) {
-		if (balanceRight == 1)
-			AVLTree::Node::rotateLeft(r->left);
+		if (balanceRight == 1) {
+			Node::rotateLeft(r->left);
 
-		AVLTree::Node::rotateRight(r);
+			Node::updateHeight(r->left->left);
+			Node::updateHeight(r->left);
+		}
 
-		Node::updateHeight(r->left);
+		Node::rotateRight(r);
+
 		Node::updateHeight(r->right);
 		Node::updateHeight(r);
 		return 1;
@@ -501,25 +505,22 @@ int AVLTree<T>::searchForLeftDisbalance(Node*& r) {
 
 template<class T>
 int AVLTree<T>::searchForRightDisbalance(Node*& r) {
-	int balance = 0;
-	int balanceLeft = 0;
+	assert(r);
 
-	balance += r->right ? r->right->height : 0;
-	balance -= r->left ? r->left->height : 0;
-
-	if (r->right) {
-		balanceLeft += r->right->right ? r->right->right->height : 0;
-		balanceLeft -= r->right->left ? r->right->left->height : 0;
-	}
+	int balance = Node::getBalanceFactor(r);
+	int balanceLeft = Node::getBalanceFactor(r->right);
 
 	if (balance == 2) {
-		if (balanceLeft == -1)
-			AVLTree::Node::rotateRight(r->right);
+		if (balanceLeft == -1) {
+			Node::rotateRight(r->right);
 
-		AVLTree::Node::rotateLeft(r);
+			Node::updateHeight(r->right->right);
+			Node::updateHeight(r->right);
+		}
+
+		Node::rotateLeft(r);
 
 		Node::updateHeight(r->left);
-		Node::updateHeight(r->right);
 		Node::updateHeight(r);
 
 		return 1;
