@@ -408,26 +408,32 @@ int AVLTree<T>::removeRec(Node*& r, const T& elem) {
 		else {
 			innerVertexRemovalCase(r, r->right);
 		}
+
+		Node::updateHeight(r);
+		searchForLeftDisbalance(r);
 	}
 	else if (r->data > elem) {
 		res = removeRec(r->left, elem);
+
+		if(res != 1)
+			return res;
+
+		Node::updateHeight(r);
+		searchForRightDisbalance(r);
 	}
 	else {
 		res = removeRec(r->right, elem);
+
+		if(res != 1)
+			return res;
+		
+		Node::updateHeight(r);
+		searchForLeftDisbalance(r);
 	}
-
-	if (res != 1)
-		return res;
-	
-	Node::updateHeight(r);
-
-	searchForLeftDisbalance(r);
-	searchForRightDisbalance(r);
 
 	return res;
 }
 
-// Oh no! What about single responsibility principle!!!???
 // We do double work here as we first
 // find the minNode and then we use backtracking to
 // balance the tree.
@@ -442,7 +448,6 @@ inline typename AVLTree<T>::Node* AVLTree<T>::balanceLeftPathAndGetMinNode(Node*
 
 	Node::updateHeight(rightOfRoot);
 
-	// searchForLeftDisbalance(rightOfRoot); -> Never occur as we iterare only left path	
 	searchForRightDisbalance(rightOfRoot);
 
 	return rightOfRoot;
